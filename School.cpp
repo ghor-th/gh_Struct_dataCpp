@@ -40,7 +40,8 @@ protected:
 
 class cls_Flights : public elem{
 protected:
-	char name[35];
+	char name[40];
+	char name_abr[8];
 	int   year;
 	double profit;
 
@@ -51,31 +52,30 @@ public:
 		profit = 0.0;
 	}
 
-	cls_Flights(char *init_name, int  init_year, double init_profit){
-		strcpy(name, init_name);
-		year = init_year;
-		profit = init_profit;
+	cls_Flights(char *init_name,char *init_abr, int  init_year, double init_profit){
+		strcpy(name, 	 init_name);
+		strcpy(name_abr, init_abr );
+		year 	= init_year;
+		profit 	= init_profit;
 	}
 
 	virtual int fscanf_el(FILE *f)
 	{
-		return fscanf( f , "%s  %d  %lfloat ", name , &year, &profit );
+		return fscanf( f , "%39s  %10s  %d  %lfloat ", name , name_abr, &year, &profit );
 	}
 
 	virtual void show(const char *opening = NULL,
 								const char *ending = NULL)
 	{
-		if( !opening ) opening= " ";
+		if( !opening ) opening= "";
 		if (!ending  ) ending = "\n";
 		cout << opening;
-
 
 		if ( name[0]) { //cout << name  << ";  " << year << "||"
 								//<< profit <<";";
 							 //cout << ending;
-
-		printf("%s %d %lf ", name, year, profit);
-		printf("\n %s",ending);
+		printf("%-33s %-10s %-10d %-5.3lf ", name, name_abr, year, profit);
+		printf("%s",ending);
 		}
 
 	}
@@ -87,7 +87,7 @@ public:
 };//end cls_Flights
 //### adding ####
 //abstr class SD
-
+/*
 class SD{
 protected:
 	FILE *pf;
@@ -128,9 +128,9 @@ protected:
 
 };//end class SD
 //#############
-
+*/
 //* class "table"
-
+/*
 const int NMAX = 200;
 template <class el> class table:public SD{
 
@@ -196,14 +196,14 @@ public:
 //### gen_n ###
 	int get_n(){ return n;}
 };//end class table
+*/
 
-/*
 
 //### main 1###
 int main() {
 	//clrscr();
 	cls_Flights flights;
-	FILE *pf = fopen("D:\\Alex\\cpp\\book\\airlinesComp.txt", "rt");
+	FILE *pf = fopen("D:\\C-C++ Eclipse\\airlinesComp.txt", "rt");
 	if( !pf ){
 		cout << "File not found! \n";
 		cout << "Press any key ...";
@@ -215,18 +215,20 @@ int main() {
 	while( !feof(pf)){
 		if( flights.fscanf_el(pf) >0 ){
 			i++;
-			cout <<i <<"   ";
-			flights.show("", "\n");
+			if( i<=9){ cout << "0"<<i <<": ";}
+			if( i>9)
+				cout <<i <<": ";
+				flights.show(" ", "\n");
 		}
 	}//end while
 	fclose(pf);
 	//getch();
 	return 0;
 }
-*/
+
 
 //### main 2 ###
-
+/*
 int main(){
 	//clrscr();
 	//cls_Flights cls_plane;
@@ -261,5 +263,8 @@ int main(){
 
 
 
+
+
+*/
 
 
