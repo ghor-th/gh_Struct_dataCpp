@@ -1,0 +1,281 @@
+#include <stdlib.h>
+#include <conio.h>
+#include <string.h>
+#include <stdio.h>
+#include <iostream>
+#include <math.h>
+
+using namespace std;
+
+//
+//  a b s t r a c t   c l a s s    "e l e m"
+//
+class elem
+{
+  public:
+    virtual int fscanf_el(FILE *f)=0;
+
+    virtual void show(const char* opening=NULL,
+                      const char* ending=NULL)=0;
+
+    virtual int free() = 0;
+
+    virtual int cmp(elem& e2) = 0;
+    int operator > (elem& e2)	{ return cmp(e2)>0;}
+    int operator >= (elem& e2)	{ return cmp(e2)>=0; }
+    int operator < (elem& e2)	{ return cmp(e2)<0;}
+    int operator <= (elem& e2) 	{ return cmp(e2)<=0;}
+    int operator == (elem& e2)	{ return cmp(e2)==0; }
+    int operator != (elem& e2)	{ return cmp(e2)!=0;}
+
+    virtual ~elem() { }
+  protected:
+       void error(char* message)
+       {
+         cerr << message;
+         cout << "Press any key to fin...\n";
+         //////getch();();();
+         exit(1);
+       }
+};//enc cls elem
+
+
+//    c l a s s   "u s u a l _ e l e m"
+class My_Flight_Co : public elem
+{
+  protected:
+    char co_name[35];
+    int co_prof;
+    double co_rait;
+
+     public:
+       My_Flight_Co()
+       {
+         co_name[0]='\0';
+         co_prof=0;
+         co_rait=0.0;
+       }
+
+       My_Flight_Co(char* init_co_name, int init_co_prof, double init_co_rait)
+       {
+         strcpy(co_name, init_co_name);
+         co_prof = init_co_prof;
+         co_rait = init_co_rait;
+       }
+
+       virtual int fscanf_el(FILE *f)
+       {
+         return fscanf(f, "%s %d %lf", co_name, &co_prof, &co_rait);
+       }
+
+       virtual void show(const char* opening=NULL,
+                         const char* ending=NULL)
+       {
+         if(!opening)	{opening="";}
+         if(!ending)		{ending="\n";}
+         cout << opening;
+         if(co_name[0]){
+           cout << co_name << "#...#"<< co_prof<< "#...#" << co_rait;
+         }
+         cout << ending;
+       }
+
+       virtual int free() { return co_name[0]=='\0'; }
+
+       virtual int cmp(elem& e2) {return strcmp(this->co_name, ((My_Flight_Co&)e2).co_name); }
+
+       ~My_Flight_Co(){}
+};//end cls My_Flight_Co
+
+/*main 1
+
+int main(){
+	 My_Flight_Co cls_Flights;
+	 cout << " =main 1= \n\n";
+	 FILE( *my_file) = fopen("D:\\C-C++ Eclipse\\struct_test.txt", "rt");
+	 if( !my_file){
+		cout << "Cannot open file" ;// <<// src_file;
+		cout << "\n== Press any key to exit.";
+		//////getch();();();
+		fclose(my_file);
+	 }
+	 int i=0;
+	 while( !( feof( my_file))){
+		 if( cls_Flights.fscanf_el(my_file)>0 ){
+			i++;
+			if( i<=9){ cout << "0"<<i <<": ";}
+			if( i>9){cout <<i <<": ";}
+			cls_Flights.show("", "\n");
+	 	 }
+	 }//end while
+	 fclose(my_file);
+
+ 	 cout << "\n\n =END main 1= ";
+ 	 return 0;
+}//end ### main 1###
+*/
+
+//
+//  a b s t r a c t   c l a s s    "S D"
+//
+class SD
+{
+protected:
+    FILE* pf;
+    long ncomp;
+
+public:
+    SD()
+    {
+      pf=NULL;
+      ncomp=0;
+    }
+
+    SD(char* file_name)
+    {
+      if(!(pf=fopen(file_name, "rt")))
+      {
+        char *mes = new char[5+strlen(file_name)+12+1];
+        error(strcat(strcat(strcpy(mes,"File "),file_name),
+                            " not found!\n"));
+      }
+           ncomp=0;
+     }//end SD(char*)
+
+         ~SD()
+         {
+           if(pf) { fclose(pf); }
+         }
+         virtual void show(const char* opening=NULL,
+                           const char* ending=NULL)=0;
+
+         long get_ncomp()	{return ncomp;}
+         void reset_ncomp(){ncomp=0;}
+
+         //virtual ~SD(){}
+protected:
+         void error(char* message)
+         {
+           cerr << message;
+           cout << "Press any key to fin...\n";
+           //////getch();();();
+           exit(1);
+         }
+ };//end class SD
+
+//
+//    c l a s s    "t a b l e"
+//
+const int NMAX=200;
+
+template <class My_Flight_Co> class table : public SD
+{
+protected:
+    int n;        // numarul de inregistrari tabelare
+    My_Flight_Co t[NMAX];   // vector de inregistrari tabelare
+
+public:
+    table() {	n=0;}
+    virtual ~table() {}//destructor
+
+    table(char* file_name) :
+    	SD(file_name)
+    	{
+    		int repeated;
+    		n=0;
+    		while(!feof(pf)){
+    			if(t[n].fscanf_el(pf)>0)
+    			{
+    				if ( (repeated=search(t[n]))>=0 )
+    				{
+    					char message[60];
+    					char repeated_str[20];
+    					message[0]='\0';
+    					strcat(message,
+    							"Key coincides with the key in the position: ");
+    					strcat(message, itoa(repeated+1, repeated_str, 20));
+    					strcat(message, "!\n");
+    					error(message);
+    				}//end if
+    				n++;
+    			}//end if_1
+
+    		}//end while
+    		fclose(pf) , pf=NULL;
+    }//end SD()
+
+	virtual void show(const char* opening =NULL,
+    							const char* ending=NULL)
+    {
+		//clrscr();
+        cout << opening;
+        if(!opening)	{opening="";  }
+        if(!ending)		{ending="\n"; }
+        for(int i=0; i<n; i++)
+        {
+        	if(i>0 && i%20==0)
+            {
+        		cout << "Press any key to continue...ln-241\n";
+                ////getch();();();
+                //clrscr();
+                cout << opening;
+            }//end for
+        	cout << (i+1) << ". "; t[i].show();
+        }//end for
+        cout << ending;
+        cout << "End of Table. Press any key ...\n";
+        //////getch();();();
+    }//end show
+
+	int search(My_Flight_Co e)
+    {
+		int position = -1;
+        for(int i=0; (position==-1) && i<n ; i++)
+        {
+        	if(ncomp++, e==this->t[i])
+        	{
+        		position=i;
+        	}
+        }//end for
+        return position;
+    }//end search
+
+    int get_n()	{ return n;}
+};//end template
+
+int main()
+{
+  //clrscr();
+  table<My_Flight_Co> gr("D:\\C-C++ Eclipse\\MAINairlinesComp.txt");
+  gr.show("Group:\n","");
+  cout << "\n == ln 273";
+  char ch='n';
+  char c_name[35];
+  while(ch!='y')
+  {
+    cout << "Enter a name to search: ";
+    cin >> c_name;
+
+       My_Flight_Co e(c_name, 100, 0.0);
+       gr.reset_ncomp();
+       int pos=gr.search(e);
+       if(pos<0)
+         cout << "No table! "
+              << "The number of comparisons: " << gr.get_ncomp() << "\n";
+       else
+         cout << "There are in the position " << (pos+1)
+              << ". The number of comparisons: " << gr.get_ncomp()<<"\n";
+       cout << "Done ? (y/n) :";
+       cin >>ch;
+       //ch = ////getch();();();
+       if( ch =='y') {
+    	   cout <<"\n ::exit program..";
+    	   exit(0);
+       }
+       cout << endl;
+  }
+  return 0;
+}//end main2
+
+
+
