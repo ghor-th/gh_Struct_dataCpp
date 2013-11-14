@@ -1,102 +1,105 @@
+//============================================================================
+// Name        : Sch.cpp
+// Author      : Lex
+// Version     :
+// Copyright   : Your copyright notice
+// Description : Hello World in C++, Ansi-style
+//============================================================================
+//#include <iostream>
+//#include "abstr_elem.cpp"
+
 #include <stdlib.h>
+#include <stdio.h>
 #include <conio.h>
 #include <string.h>
-#include <stdio.h>
 #include <iostream>
 #include <math.h>
 
 using namespace std;
 
-//
-//  a b s t r a c t   c l a s s    "e l e m"
-//
+
+// abstract class "elem"
 class elem
 {
-  public:
-    virtual int fscanf_el(FILE *f)=0;
+public:
+	virtual int fscanf_el(FILE *f) = 0;
+	virtual void show( const char *opening=NULL,
+						const char *ending=NULL)=0;
+	virtual int free()=0;
+	virtual int cmp(elem &e2) = 0;
+	int operator  > (elem &e2){ return cmp(e2) >0; }
+	int operator >= (elem &e2){ return cmp(e2)>=0; }
+	int operator  < (elem &e2){ return cmp(e2) <0; }
+	int operator <= (elem &e2){ return cmp(e2)<=0; }
+	int operator == (elem &e2){ return cmp(e2)==0; }
+	int operator != (elem &e2){ return cmp(e2)!=0; }
 
-    virtual void show(const char* opening=NULL,
-                      const char* ending=NULL)=0;
+	virtual ~elem(){}
+protected:
+	void error(char * message){
+		cerr << message;
+		cout <<"Press any key to end..\n";
+		exit(1);
+	}//end error
 
-    virtual int free() = 0;
+};//end class elem
 
-    virtual int cmp(elem& e2) = 0;
-    int operator > (elem& e2)	{ return cmp(e2)>0;}
-    int operator >= (elem& e2)	{ return cmp(e2)>=0; }
-    int operator < (elem& e2)	{ return cmp(e2)<0;}
-    int operator <= (elem& e2) 	{ return cmp(e2)<=0;}
-    int operator == (elem& e2)	{ return cmp(e2)==0; }
-    int operator != (elem& e2)	{ return cmp(e2)!=0;}
-
-    virtual ~elem() { }
-  protected:
-       void error(char* message)
-       {
-         cerr << message;
-         cout << "Press any key to fin...\n";
-         //////getch();();();
-         exit(1);
-       }
-};//enc cls elem
-
-
-//    c l a s s   "u s u a l _ e l e m"
-class My_Flight_Co : public elem
+//#############class My_Flight_Co  == usual_elem ##########
+class My_Flight_Co: public elem
 {
-  protected:
-    char co_name[35];
-    int co_prof;
-    double co_rait;
+protected:
+	char co_name[35];
+	int co_profit;
+	double co_raiting;
 
-     public:
-       My_Flight_Co()
-       {
-         co_name[0]='\0';
-         co_prof=0;
-         co_rait=0.0;
-       }
+public:
+	My_Flight_Co(){
+		co_name[0]='\0';
+		co_profit = 0;
+		co_raiting = 0.0;
+	}
 
-       My_Flight_Co(char* init_co_name, int init_co_prof, double init_co_rait)
-       {
-         strcpy(co_name, init_co_name);
-         co_prof = init_co_prof;
-         co_rait = init_co_rait;
-       }
+	My_Flight_Co(char *init_co_name, int init_co_profit, double init_co_raiting){
+		strcpy( init_co_name, co_name);
+		co_profit  = init_co_profit;
+		co_raiting = init_co_raiting;
+	}
 
-       virtual int fscanf_el(FILE *f)
-       {
-         return fscanf(f, "%s %d %lf", co_name, &co_prof, &co_rait);
-       }
+	virtual int fscanf_el( FILE *f){
+		return fscanf(f, "%s %d %lf", co_name, &co_profit, &co_raiting);
+	}
 
-       virtual void show(const char* opening=NULL,
-                         const char* ending=NULL)
-       {
-         if(!opening)	{opening="";}
-         if(!ending)		{ending="\n";}
-         cout << opening;
-         if(co_name[0]){
-           cout << co_name << "#...#"<< co_prof<< "#...#" << co_rait;
-         }
-         cout << ending;
-       }
+	virtual void show( const char *opening=NULL,
+						const char *ending=NULL)
+	{
+		if( !opening){ opening=" ";}
+		if( !ending) { ending ="\n";}
+		cout << opening;
+		if( co_name[0]){
+			cout << co_name << "...#"<<co_profit << "#...#"<<  co_raiting;
+		}//end if
+//took out cout from { if }
+		cout << ending;
+	}//end show()
 
-       virtual int free() { return co_name[0]=='\0'; }
+	virtual int free(){ return co_name[0]=='\0'; }
+	virtual int cmp( elem &e2){
+		return strcmp(this->co_name, ( ( My_Flight_Co &) e2).co_name);
+	}
+	virtual ~My_Flight_Co(){}
+};//end class My_Flight_Co
+//checked above
 
-       virtual int cmp(elem& e2) {return strcmp(this->co_name, ((My_Flight_Co&)e2).co_name); }
-
-       ~My_Flight_Co(){}
-};//end cls My_Flight_Co
-
-/*main 1
-
+/*
+//##main 1 for usual_elem.cpp
 int main(){
 	 My_Flight_Co cls_Flights;
 	 cout << " =main 1= \n\n";
-	 FILE( *my_file) = fopen("D:\\C-C++ Eclipse\\struct_test.txt", "rt");
+	 FILE( *my_file) = fopen("D:\\C-C++ Eclipse\\MAINairlinesComp.txt", "rt");
 	 if( !my_file){
 		cout << "Cannot open file" ;// <<// src_file;
 		cout << "\n== Press any key to exit.";
-		//////getch();();();
+		getch();
 		fclose(my_file);
 	 }
 	 int i=0;
@@ -115,167 +118,356 @@ int main(){
 }//end ### main 1###
 */
 
-//
-//  a b s t r a c t   c l a s s    "S D"
-//
+
+//#############//#############//#############
+//#############class SD#############
 class SD
 {
 protected:
-    FILE* pf;
-    long ncomp;
+	FILE *pf;
+	long ncomp;
 
 public:
-    SD()
-    {
-      pf=NULL;
-      ncomp=0;
-    }
+	SD(){
+		pf=NULL;
+		ncomp = 0;
+	}
 
-    SD(char* file_name)
-    {
-      if(!(pf=fopen(file_name, "rt")))
-      {
-        char *mes = new char[5+strlen(file_name)+12+1];
-        error(strcat(strcat(strcpy(mes,"File "),file_name),
-                            " not found!\n"));
-      }
-           ncomp=0;
-     }//end SD(char*)
+	SD( char *file_name){
+		if( !( pf=fopen(file_name, "rt"))){
+			char *mes = new char[ 5+strlen( file_name)+12 +1];
+			error( strcat( strcat( strcpy( mes, "File "), file_name), " NOT FOUND!!!(from SD 108)\n"));
+		}
+		ncomp = 0;
+	}
 
-         ~SD()
-         {
-           if(pf) { fclose(pf); }
-         }
-         virtual void show(const char* opening=NULL,
-                           const char* ending=NULL)=0;
+	virtual void show( const char *opening =NULL,
+						const char *ending =NULL)=0;
+	long get_ncomp(){ return ncomp;}
+	void reset_ncomp() { ncomp=0; }
 
-         long get_ncomp()	{return ncomp;}
-         void reset_ncomp(){ncomp=0;}
+	//destr
+	virtual ~SD(){ if( pf) { fclose( pf); }}
 
-         //virtual ~SD(){}
 protected:
-         void error(char* message)
-         {
-           cerr << message;
-           cout << "Press any key to fin...\n";
-           //////getch();();();
-           exit(1);
-         }
- };//end class SD
+	void error(char *message){
+		cerr << message;
+		cout <<"Press any key to finish..!!! (cls SD 124)\n";
+		//getch();
+		exit(1);
+	}
 
-//
-//    c l a s s    "t a b l e"
-//
+};//end lcass SD
+
+
+//#############template <class My_Flight_Co> class table: public SD
 const int NMAX=200;
+template <class My_Flight_Co> class co_table: public SD{
+ protected:
+	int n; //nr inreg tabelare
+	My_Flight_Co t[NMAX];
 
-template <class My_Flight_Co> class table : public SD
+	void error(char *message){
+			cerr << message;
+			cout <<"Press any key to finish..!!!\n";
+			//getch();
+			exit(1);
+		}
+
+public:
+	co_table(){ n=0;}
+
+	co_table( char * file_name):
+		SD( file_name)
+		{
+			int repeated;
+			n=0;
+			while( !feof( pf) )
+			{
+				if( t[n].fscanf_el(pf)>0)
+				{
+					if( ( repeated=search(t[n]))>=0 )
+					{
+						char message[60];
+//change 10->20
+						char repeated_str[20];
+						message[0]='\0';
+						strcat( message,
+								"(from co_table)Key coincides with the key in the position: ");
+						strcat( message, itoa( repeated+1, repeated_str, 20));
+						strcat( message, " !\n");
+						error(message);
+					}
+					n++;
+				}//end if_1
+			}//end while_1
+			fclose( pf), pf=NULL;
+	}//end table constr
+
+	virtual void show( const char *opening = NULL,
+						const char *ending = NULL)
+	{
+		cout << opening;
+		if( !opening ) { opening = "";}
+		if( !ending ) { ending = "\n";}
+		for( int i=0; i<n; i++)
+		{
+			if( i>0 && i%20==0 ){
+				cout << "Press any key to continue...(from co_table)\n";
+				//getch();## doesnt working with this operator
+				cout<< opening;
+			}//end if_1
+			cout << (i+1) <<". " ; t[i].show();
+		}//end for i
+		cout << ending;
+		cout << "END of table.Press any key..(fr co_table)\n";
+		getch();
+	}//end void show()
+
+	int search( My_Flight_Co e){
+		int position = -1;
+		for ( int i=0; ( position==-1) && ( i<n); i++){
+			if(ncomp++,  e==this->t[i]){
+				position = i;
+			}//end if
+		}//end for i
+		return position;
+	}//end search()
+
+	int get_n() { return n;}
+
+	virtual ~co_table(){}
+};//end template
+//==checked abouve
+
+
+//###################################
+/*
+ * class "tree like" elements
+ */
+class tree_like : public My_Flight_Co
 {
 protected:
-    int n;        // numarul de inregistrari tabelare
-    My_Flight_Co t[NMAX];   // vector de inregistrari tabelare
+	int less;
+	int greater;
 
 public:
-    table() {	n=0;}
-    virtual ~table() {}//destructor
+	tree_like()
+	{
+		less = greater = -1;
+	}
 
-    table(char* file_name) :
-    	SD(file_name)
-    	{
-    		int repeated;
-    		n=0;
-    		while(!feof(pf)){
-    			if(t[n].fscanf_el(pf)>0)
-    			{
-    				if ( (repeated=search(t[n]))>=0 )
-    				{
-    					char message[60];
-    					char repeated_str[20];
-    					message[0]='\0';
-    					strcat(message,
-    							"Key coincides with the key in the position: ");
-    					strcat(message, itoa(repeated+1, repeated_str, 20));
-    					strcat(message, "!\n");
-    					error(message);
-    				}//end if
-    				n++;
-    			}//end if_1
+	tree_like( char *init_co_name, int init_co_profit, int init_co_raiting):
+		My_Flight_Co(init_co_name, init_co_profit, init_co_raiting)
+	{
+		less = greater = -1;
+	}
 
-    		}//end while
-    		fclose(pf) , pf=NULL;
-    }//end SD()
+	int get_less(){ return less;}
+	int set_less( int new_less)
+	{
+		return less= new_less;
+	}
 
-	virtual void show(const char* opening =NULL,
-    							const char* ending=NULL)
-    {
-		//clrscr();
-        cout << opening;
-        if(!opening)	{opening="";  }
-        if(!ending)		{ending="\n"; }
-        for(int i=0; i<n; i++)
-        {
-        	if(i>0 && i%20==0)
-            {
-        		cout << "Press any key to continue...ln-241\n";
-                ////getch();();();
-                //clrscr();
-                cout << opening;
-            }//end for
-        	cout << (i+1) << ". "; t[i].show();
-        }//end for
-        cout << ending;
-        cout << "End of Table. Press any key ...\n";
-        //////getch();();();
-    }//end show
+	int get_greater(){ return greater;}
+	int set_greater( int new_greater)
+	{
+		return greater=new_greater;
+	}
 
-	int search(My_Flight_Co e)
-    {
+	virtual void tree_show(const char *opening=NULL,
+							const char *ending=NULL)
+	{
+		if( !opening) { opening="";}
+		if( !ending ) { ending ="\n";}
+		cout<< opening;
+		My_Flight_Co :: show("","");
+		cout<<" [" << less <<", " << greater << "] ;";
+		cout<< ending;
+	}//end tree_show()
+
+	virtual int fscanf_el(FILE *pf)
+	{
+		less = greater = -1;
+		return My_Flight_Co::fscanf_el(pf);
+	}//end fscanf_el()
+};//end cls tree_like
+
+//###################################
+//class "tree table"
+
+template <class My_Flight_Co> class tree_table: public co_table<tree_like>
+{
+public:
+	tree_table(){  int n =0 ;}
+
+	tree_table( char *file_name):
+		co_table<My_Flight_Co> (file_name)
+	{
+		for( int i=1; i<n; i++){
+			int forward=1;
+			int j=0;
+			while( forward){
+				if( t[n]< t[j]){
+					if( t[j].get_less()==-1){
+						t[j].set_less(i), forward=0;
+					}else{
+						j=t[j].get_less();
+					}
+				}else{
+					if( t[i]>t[j]){
+						if( t[j].get_greater()==-1){
+							t[j].set_greater(i), forward=0;
+						}else{
+							j = t[j].get_greater();
+						}
+					}
+				}
+			}//end while
+		}//end for
+	}//end tree_table(char *....)
+
+	virtual void tree_show( const char *opening=NULL,
+							const char *ending=NULL)
+	{
+		if( !opening) { opening = "";}
+		if( !ending ) { ending = "\n";}
+		cout << opening;
+		for( int i=0; i<n; i++)
+		{
+			if( i>20 && (i%20==0) ){
+				cout << "Press any key to continue(from tree_show)...\n";
+				getch();
+				//clrscr();
+				cout << opening;
+			}
+			cout<< (i+1)<<". " ;
+			t[i].tree_show();
+		}
+		cout << ending;
+		cout << " End of table.Press any key...\n";
+		getch();
+	}//end tree_show()
+
+	int search(tree_like e )
+	{
 		int position = -1;
-        for(int i=0; (position==-1) && i<n ; i++)
-        {
-        	if(ncomp++, e==this->t[i])
-        	{
-        		position=i;
-        	}
-        }//end for
-        return position;
-    }//end search
+		int forward = 1;
+		int i=0;
+		int cmp_result;
+		while(forward)
+		{
+			if( (cmp_result=e.cmp(t[i])==0) ){
+				ncomp++;
+				position=i, forward=0;
+			}else{
+				if( cmp_result<0){
+					i=t[i].get_less();
+				}else{
+					i=t[i].get_greater();
+				}
+				if(i==-1){ forward = 0;}
+			}
+		}//end while
+		return position;
+	}//end search
 
-    int get_n()	{ return n;}
+
+
 };//end template
 
+
+
+
+
+//## main2 pag 14 :: for table
+int main(){
+	cout << "=main 2=\n";
+	co_table<My_Flight_Co> gr("D:\\C-C++ Eclipse\\MAINairlinesComp.txt");
+	gr.show("Group: \n", "");
+	My_Flight_Co co_obj;
+	char ch='n';
+	char c_name[35];
+	while( ch !='y'){
+		cout << "(from main2) Enter Co_name to search: ";
+		cin >> c_name;
+		cout << c_name<<"\n";
+		gr.reset_ncomp();
+		My_Flight_Co co_obj(c_name, 100, 0.0);
+
+		int pos = gr.search(co_obj);
+		if( pos<0){
+			cout << "(fr main2 ) No table found!!! \n"
+				<< "The number of comparisons: " << gr.get_ncomp()<<"\n";
+		}else{
+			cout << " (fr main2)There are in the position \n" << (pos+1)
+				<< ". The number of comparisons : " << gr.get_ncomp()<<"\n";
+			cout <<"DONE? y/n";
+			//ch = getch();
+			cout<< endl;
+		}//end if-else
+	}//end while
+	cout << "\n==end main2\n";
+	return 0;
+}//end main
+
+
+/*//## main 3 pag 16
+int main(){
+	cout << "=main 3=";
+	co_table<My_Flight_Co> gr("D:\\C-C++ Eclipse\\MAINairlinesComp.txt");
+	gr.show("Group:\n" , "");
+	My_Flight_Co co_sample;
+	long NCOMP=0;
+
+	FILE *pf = fopen("D:\\C-C++ Eclipse\\MAINairlinesComp.txt", "rt");
+	while( !feof(pf)){
+		if(co_sample.fscanf_el(pf)>0){
+			gr.reset_ncomp();
+			if( gr.search(co_sample) >=0){
+				NCOMP += gr.get_ncomp();
+			}
+		}//end if 1
+	}//end while 1
+	fclose( pf);
+	cout << "N= "<<gr.get_n() <<", NCOMP= "<<NCOMP
+			<< ", ALS= " << ( ( double)NCOMP/gr.get_n());
+	return 0;
+}//end main3
+*/
+
+/*//## main 4, pag21,
 int main()
 {
-  //clrscr();
-  table<My_Flight_Co> gr("D:\\C-C++ Eclipse\\MAINairlinesComp.txt");
-  gr.show("Group:\n","");
-  cout << "\n == ln 273";
-  char ch='n';
-  char c_name[35];
-  while(ch!='y')
-  {
-    cout << "Enter a name to search: ";
-    cin >> c_name;
+	//clrscr();
+	tree_table<tree_like> tree_gr("D:\\C-C++ Eclipse\\MAINairlinesComp.txt");
+	tree_gr.show("Group1: \n", "");
+	tree_gr.tree_show("Group2: \n","");
+	char ch = 'n';
+	char fl_co_name[35];
+	while( ch !='y'){
+		cout << "Enter a co name to seek: \n";
+		cin >> fl_co_name;
+		tree_like e(fl_co_name, 2000, 0.0);
+		tree_gr.reset_ncomp();
+		int pos = tree_gr.search(e);
+		if( pos<0){
+			cout << "No table found!!!"<<"The nr of compars: "
+					<<tree_gr.get_ncomp() << "\n";
+		}else{
+			cout << "There are in the pos " << (pos+1)
+					<<"the nr of compars: " << tree_gr.get_ncomp()
+					<< "\n";
+		}
+		cout << "Done ?[y/n]";
+		ch=getchar();
+		//cout << endl;
+	}//end while
+	return 0;
 
-       My_Flight_Co e(c_name, 100, 0.0);
-       gr.reset_ncomp();
-       int pos=gr.search(e);
-       if(pos<0)
-         cout << "No table! "
-              << "The number of comparisons: " << gr.get_ncomp() << "\n";
-       else
-         cout << "There are in the position " << (pos+1)
-              << ". The number of comparisons: " << gr.get_ncomp()<<"\n";
-       cout << "Done ? (y/n) :";
-       cin >>ch;
-       //ch = ////getch();();();
-       if( ch =='y') {
-    	   cout <<"\n ::exit program..";
-    	   exit(0);
-       }
-       cout << endl;
-  }
-  return 0;
-}//end main2
+}//end main 4
+*/
+
 
 
 
